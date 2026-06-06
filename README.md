@@ -1,1 +1,0 @@
-# protocolo-de-saida
