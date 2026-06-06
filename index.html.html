@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz — Você É o Segredo Dele?</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════
+   TOKENS
+══════════════════════════════════ */
+:root {
+  --plum:       #3D1A2E;
+  --plum-mid:   #5C2A46;
+  --rose:       #C2607A;
+  --blush:      #E8A5B5;
+  --cream:      #FAF6F1;
+  --warm-white: #FDF9F5;
+  --gold:       #C9A86C;
+  --gold-light: #EAD9B8;
+  --text-dark:  #1E0E18;
+  --text-mid:   #5A3A4A;
+  --text-light: #9A7A8A;
+  --correct:    #4CAF7A;
+  --shadow:     0 4px 32px rgba(61,26,46,0.10);
+}
+
+/* ══════════════════════════════════
+   RESET & BASE
+══════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text-dark);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ══════════════════════════════════
+   SCREENS
+══════════════════════════════════ */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ══════════════════════════════════
+   TELA 1 — INTRO
+══════════════════════════════════ */
+#screen-intro {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  position: relative;
+  background: var(--plum);
+  overflow: hidden;
+}
+
+#screen-intro::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 30% 20%, rgba(194,96,122,0.25) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(201,168,108,0.12) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+/* grain overlay */
+#screen-intro::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.intro-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 620px;
+}
+
+.intro-badge {
+  display: inline-block;
+  border: 1px solid rgba(232,165,181,0.4);
+  color: var(--blush);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  padding: 7px 18px;
+  border-radius: 40px;
+  margin-bottom: 36px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.1s forwards;
+}
+
+.intro-inner h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 8vw, 68px);
+  font-weight: 300;
+  color: white;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.25s forwards;
+}
+
+.intro-inner h1 em {
+  font-style: italic;
+  color: var(--blush);
+}
+
+.intro-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(17px, 2.5vw, 22px);
+  font-style: italic;
+  font-weight: 300;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.6;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.4s forwards;
+}
+
+.intro-stats {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.5s forwards;
+}
+
+.stat {
+  text-align: center;
+}
+.stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-weight: 300;
+  color: var(--gold);
+  display: block;
+  line-height: 1;
+}
+.stat-label {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.btn-start {
+  display: inline-block;
+  background: var(--rose);
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 18px 48px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.6s forwards;
+}
+.btn-start:hover {
+  background: white;
+  color: var(--plum);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+
+.intro-disclaimer {
+  margin-top: 20px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.7s forwards;
+}
+
+/* ══════════════════════════════════
+   TELA 2 — QUIZ
+══════════════════════════════════ */
+#screen-quiz {
+  background: var(--cream);
+  padding: 0;
+}
+
+.quiz-header {
+  background: var(--plum);
+  padding: 20px 24px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.quiz-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.quiz-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  font-style: italic;
+  color: var(--blush);
+}
+
+.quiz-counter {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+}
+
+.progress-track {
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--rose), var(--gold));
+  border-radius: 2px;
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  width: 0%;
+}
+
+.quiz-section-label {
+  text-align: center;
+  padding: 28px 24px 0;
+}
+.section-tag {
+  display: inline-block;
+  background: var(--plum);
+  color: var(--blush);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 40px;
+  margin-bottom: 12px;
+}
+.section-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+/* question card */
+.question-wrap {
+  padding: 32px 24px 120px;
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.question-card {
+  display: none;
+  animation: fadeUp 0.4s ease forwards;
+}
+.question-card.active { display: block; }
+
+.q-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 72px;
+  font-weight: 300;
+  color: rgba(61,26,46,0.06);
+  line-height: 1;
+  margin-bottom: -24px;
+  user-select: none;
+}
+
+.q-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 400;
+  color: var(--plum);
+  line-height: 1.4;
+  margin-bottom: 32px;
+}
+
+/* options */
+.options-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.option-item {
+  position: relative;
+}
+
+.option-btn {
+  width: 100%;
+  text-align: left;
+  background: white;
+  border: 1.5px solid var(--gold-light);
+  border-radius: 4px;
+  padding: 18px 20px 18px 52px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text-mid);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(61,26,46,0.04);
+  position: relative;
+}
+
+.option-btn::before {
+  content: attr(data-letter);
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--gold-light);
+  color: var(--text-mid);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 24px;
+  padding: 0;
+  transition: all 0.25s ease;
+}
+
+.option-btn:hover {
+  border-color: var(--rose);
+  background: #FFF8FA;
+  color: var(--plum);
+  transform: translateX(4px);
+}
+.option-btn:hover::before {
+  background: var(--rose);
+  color: white;
+}
+
+.option-btn.selected {
+  border-color: var(--plum);
+  background: rgba(61,26,46,0.04);
+  color: var(--plum);
+  font-weight: 500;
+}
+.option-btn.selected::before {
+  background: var(--plum);
+  color: white;
+}
+
+/* nav buttons */
+.quiz-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(250,246,241,0.96);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--gold-light);
+  padding: 16px 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  z-index: 50;
+}
+
+.btn-nav {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  padding: 14px 32px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.btn-prev {
+  background: transparent;
+  border: 1.5px solid var(--gold-light);
+  color: var(--text-mid);
+}
+.btn-prev:hover { border-color: var(--plum); color: var(--plum); }
+.btn-prev:disabled { opacity: 0.3; cursor: default; }
+
+.btn-next {
+  background: var(--plum);
+  color: white;
+  flex: 1;
+  max-width: 260px;
+}
+.btn-next:hover { background: var(--rose); }
+.btn-next:disabled { background: var(--gold-light); color: var(--text-light); cursor: default; }
+
+/* ══════════════════════════════════
+   TELA 3 — CAPTURA DE E-MAIL
+══════════════════════════════════ */
+#screen-email {
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background: var(--plum);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+#screen-email::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 30%, rgba(194,96,122,0.2) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.email-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 520px;
+  width: 100%;
+}
+
+.email-icon {
+  font-size: 48px;
+  margin-bottom: 24px;
+  display: block;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.1s forwards;
+}
+
+.email-inner h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 300;
+  color: white;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.2s forwards;
+}
+.email-inner h2 em { font-style: italic; color: var(--blush); }
+
+.email-sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.7;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.3s forwards;
+}
+
+.email-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.4s forwards;
+}
+
+.email-form input {
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: 4px;
+  padding: 16px 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  color: white;
+  outline: none;
+  transition: border-color 0.25s;
+}
+.email-form input::placeholder { color: rgba(255,255,255,0.35); }
+.email-form input:focus { border-color: var(--rose); background: rgba(255,255,255,0.12); }
+
+.btn-reveal {
+  background: var(--rose);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 18px 32px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.btn-reveal:hover {
+  background: white;
+  color: var(--plum);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+}
+
+.email-privacy {
+  margin-top: 16px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.5s forwards;
+}
+
+/* ══════════════════════════════════
+   TELA 4 — LOADING / CALCULANDO
+══════════════════════════════════ */
+#screen-loading {
+  align-items: center;
+  justify-content: center;
+  background: var(--cream);
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.loading-inner { max-width: 400px; }
+
+.loading-orb {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin: 0 auto 40px;
+  background: radial-gradient(circle, rgba(194,96,122,0.15), transparent);
+  border: 2px solid var(--gold-light);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s ease infinite;
+}
+.loading-orb::after {
+  content: '';
+  position: absolute; inset: -8px;
+  border-radius: 50%;
+  border: 1px solid rgba(194,96,122,0.2);
+  animation: pulse 2s ease 0.5s infinite;
+}
+.loading-orb-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--plum);
+}
+
+.loading-inner h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--plum);
+  margin-bottom: 12px;
+}
+
+.loading-steps {
+  list-style: none;
+  margin-top: 32px;
+  text-align: left;
+}
+.loading-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gold-light);
+  font-size: 14px;
+  color: var(--text-light);
+  transition: color 0.4s;
+}
+.loading-step.done { color: var(--text-mid); }
+.step-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gold-light);
+  flex-shrink: 0;
+  transition: background 0.4s;
+}
+.loading-step.done .step-dot { background: var(--rose); }
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: 0.7; }
+}
+
+/* ══════════════════════════════════
+   TELA 5 — RESULTADO
+══════════════════════════════════ */
+#screen-result {
+  background: var(--cream);
+  padding-bottom: 0;
+}
+
+/* hero resultado */
+.result-hero {
+  background: var(--plum);
+  padding: 64px 24px 80px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.result-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 10%, rgba(194,96,122,0.2) 0%, transparent 65%);
+  pointer-events: none;
+}
+.result-hero-inner { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+
+.result-profile-tag {
+  display: inline-block;
+  border: 1px solid rgba(232,165,181,0.4);
+  color: var(--blush);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  padding: 7px 18px;
+  border-radius: 40px;
+  margin-bottom: 28px;
+}
+
+.result-hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(32px, 6vw, 60px);
+  font-weight: 300;
+  color: white;
+  line-height: 1.2;
+  margin-bottom: 20px;
+}
+.result-hero h1 em { font-style: italic; color: var(--blush); }
+
+.result-hero-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(16px, 2vw, 21px);
+  font-style: italic;
+  font-weight: 300;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.6;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* score bar */
+.score-visual {
+  background: white;
+  padding: 40px 24px;
+  text-align: center;
+  border-bottom: 1px solid var(--gold-light);
+}
+.score-visual-inner { max-width: 560px; margin: 0 auto; }
+.score-title { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-light); margin-bottom: 20px; }
+.score-bar-track {
+  height: 8px;
+  background: var(--gold-light);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.score-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--rose), var(--plum));
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1) 0.5s;
+  width: 0%;
+}
+.score-range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+/* diagnostic */
+.result-diagnostic {
+  padding: 64px 24px;
+  background: var(--plum);
+}
+.result-diagnostic-inner { max-width: 720px; margin: 0 auto; }
+.result-diag-eyebrow { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--blush); margin-bottom: 20px; }
+.result-diagnostic h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(26px, 4vw, 44px);
+  font-weight: 300;
+  color: white;
+  line-height: 1.3;
+  margin-bottom: 28px;
+}
+.result-diagnostic h2 em { font-style: italic; color: var(--blush); }
+.result-diagnostic p { font-size: 16px; line-height: 1.8; color: rgba(255,255,255,0.78); margin-bottom: 18px; }
+.result-divider { width: 48px; height: 1px; background: var(--rose); margin: 36px 0; }
+.pain-list { list-style: none; }
+.pain-list li {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  font-size: 15px; line-height: 1.6;
+  color: rgba(255,255,255,0.82);
+}
+.pain-list li::before { content: '◆'; color: var(--rose); font-size: 8px; margin-top: 6px; flex-shrink: 0; }
+
+/* bridge */
+.result-bridge { padding: 64px 24px; background: var(--warm-white); }
+.result-bridge-inner { max-width: 720px; margin: 0 auto; }
+.result-bridge-eyebrow { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--rose); margin-bottom: 18px; }
+.result-bridge h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(26px, 4vw, 44px);
+  font-weight: 300;
+  color: var(--plum);
+  line-height: 1.3;
+  margin-bottom: 28px;
+}
+.result-bridge h2 em { font-style: italic; }
+.result-bridge p { font-size: 16px; line-height: 1.8; color: var(--text-mid); margin-bottom: 18px; }
+
+/* product */
+.result-product { padding: 64px 24px; background: var(--cream); }
+.product-card {
+  max-width: 680px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: var(--shadow), 0 0 0 1px rgba(201,168,108,0.2);
+}
+.product-head {
+  background: var(--plum);
+  padding: 40px 40px;
+  text-align: center;
+}
+.product-head .kicker { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--blush); margin-bottom: 14px; }
+.product-head h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px; font-weight: 300;
+  color: white; line-height: 1.2; margin-bottom: 6px;
+}
+.product-head .subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px; font-style: italic; color: var(--blush);
+}
+.product-body { padding: 40px; }
+.chapters-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-light); margin-bottom: 20px; }
+.chapter-list { list-style: none; margin-bottom: 36px; }
+.chapter-list li {
+  display: flex; align-items: center; gap: 14px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--gold-light);
+  font-size: 14px; color: var(--text-mid);
+}
+.chapter-list li:last-child { border-bottom: none; }
+.ch-n { font-family: 'Cormorant Garamond', serif; font-size: 13px; color: var(--text-light); width: 24px; flex-shrink: 0; }
+.bonus-box {
+  background: rgba(201,168,108,0.07);
+  border: 1px solid var(--gold-light);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin-bottom: 36px;
+}
+.bonus-label { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; }
+.bonus-row { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; font-size: 14px; color: var(--text-mid); line-height: 1.5; }
+.bonus-row + .bonus-row { border-top: 1px solid rgba(201,168,108,0.2); }
+.bonus-dot { color: var(--gold); flex-shrink: 0; margin-top: 2px; }
+.pricing { text-align: center; margin-bottom: 28px; }
+.price-old { font-size: 12px; text-decoration: line-through; color: var(--text-light); }
+.price-now {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 56px; font-weight: 300; color: var(--plum); line-height: 1;
+}
+.price-note { font-size: 11px; color: var(--text-light); margin-top: 6px; }
+.btn-cta {
+  display: block; width: 100%;
+  background: var(--rose); color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  text-align: center;
+  padding: 20px 32px;
+  border: none; border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 14px;
+}
+.btn-cta:hover { background: var(--plum); transform: translateY(-2px); box-shadow: 0 10px 32px rgba(61,26,46,0.25); }
+.cta-guarantee { text-align: center; font-size: 11px; color: var(--text-light); }
+
+/* footer cta */
+.result-footer {
+  background: var(--plum);
+  padding: 72px 24px;
+  text-align: center;
+}
+.result-footer h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(26px, 4vw, 48px);
+  font-weight: 300; color: white; line-height: 1.3; margin-bottom: 14px;
+}
+.result-footer h2 em { font-style: italic; color: var(--blush); }
+.result-footer p { font-size: 16px; color: rgba(255,255,255,0.65); max-width: 480px; margin: 0 auto 40px; line-height: 1.7; }
+.result-footer .btn-cta { max-width: 480px; margin: 0 auto 14px; }
+.result-footer .cta-guarantee { color: rgba(255,255,255,0.35); }
+
+/* ══════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════ */
+@media (max-width: 560px) {
+  .product-head { padding: 32px 24px; }
+  .product-body { padding: 28px 20px; }
+  .bonus-box { padding: 18px 18px; }
+  .result-footer { padding: 56px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     TELA 1 — INTRO
+══════════════════════════════════ -->
+<div id="screen-intro" class="screen active">
+  <div class="intro-inner">
+    <div class="intro-badge">Diagnóstico Emocional Gratuito</div>
+    <h1>Você é o <em>segredo</em><br>dele?</h1>
+    <p class="intro-sub">Responda 20 perguntas e descubra em qual fase você está — e o que fazer para se libertar.</p>
+    <div class="intro-stats">
+      <div class="stat">
+        <span class="stat-num">20</span>
+        <span class="stat-label">Perguntas</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">3min</span>
+        <span class="stat-label">Para completar</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">100%</span>
+        <span class="stat-label">Gratuito</span>
+      </div>
+    </div>
+    <button class="btn-start" onclick="startQuiz()">INICIAR O DIAGNÓSTICO →</button>
+    <p class="intro-disclaimer">Suas respostas são confidenciais e analisadas automaticamente</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════
+     TELA 2 — QUIZ
+══════════════════════════════════ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-header">
+    <div class="quiz-header-top">
+      <span class="quiz-logo">Escolha Si Mesma</span>
+      <span class="quiz-counter" id="quiz-counter">Pergunta 1 de 20</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <div class="quiz-section-label">
+    <div class="section-tag" id="section-tag">Situação</div>
+    <div class="section-name" id="section-name">Entendendo o seu cenário atual</div>
+  </div>
+
+  <div class="question-wrap" id="question-wrap">
+    <!-- questions injected by JS -->
+  </div>
+
+  <div class="quiz-nav">
+    <button class="btn-nav btn-prev" id="btn-prev" onclick="prevQuestion()" disabled>← Voltar</button>
+    <button class="btn-nav btn-next" id="btn-next" onclick="nextQuestion()" disabled>Próxima →</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════
+     TELA 3 — CAPTURA DE E-MAIL
+══════════════════════════════════ -->
+<div id="screen-email" class="screen">
+  <div class="email-inner">
+    <span class="email-icon">✉</span>
+    <h2>Seu diagnóstico<br>está <em>pronto.</em></h2>
+    <p class="email-sub">Deixe seu nome e e-mail para revelar o resultado — e receber seu guia de libertação personalizado.</p>
+    <div class="email-form">
+      <input type="text" id="user-name" placeholder="Seu primeiro nome" autocomplete="given-name" />
+      <input type="email" id="user-email" placeholder="Seu melhor e-mail" autocomplete="email" />
+      <button class="btn-reveal" onclick="submitEmail()">REVELAR MEU DIAGNÓSTICO →</button>
+    </div>
+    <p class="email-privacy">🔒 Seus dados são protegidos. Sem spam, jamais.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════
+     TELA 4 — LOADING
+══════════════════════════════════ -->
+<div id="screen-loading" class="screen">
+  <div class="loading-inner">
+    <div class="loading-orb">
+      <span class="loading-orb-text">Analisando</span>
+    </div>
+    <h2>Calculando seu diagnóstico...</h2>
+    <ul class="loading-steps" id="loading-steps">
+      <li class="loading-step" data-i="0"><span class="step-dot"></span>Analisando padrão de espera</li>
+      <li class="loading-step" data-i="1"><span class="step-dot"></span>Mapeando dependência emocional</li>
+      <li class="loading-step" data-i="2"><span class="step-dot"></span>Calculando custo emocional</li>
+      <li class="loading-step" data-i="3"><span class="step-dot"></span>Identificando seu perfil</li>
+      <li class="loading-step" data-i="4"><span class="step-dot"></span>Preparando seu diagnóstico</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════
+     TELA 5 — RESULTADO
+══════════════════════════════════ -->
+<div id="screen-result" class="screen">
+  <!-- injected by JS -->
+</div>
+
+
+<!-- ══════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════ -->
+<script>
+// ── DATA ─────────────────────────────────────────────
+const sections = [
+  { tag: 'Situação',           name: 'Entendendo o seu cenário atual',          range: [0,4]  },
+  { tag: 'Problema',           name: 'O impacto na sua vida e autoestima',       range: [5,9]  },
+  { tag: 'Implicação',         name: 'As consequências de longo prazo',          range: [10,14]},
+  { tag: 'Necessidade',        name: 'O que você precisa para se libertar',      range: [15,19]},
+];
+
+// scores: A=0, B=1, C=2, D=0 (D é variante neutra)
+const questions = [
+  // ── SITUAÇÃO ──
+  {
+    text: 'Com que frequência ele menciona a promessa de "largar ela" e estabelecer uma data?',
+    opts: [
+      { letter:'A', text:'Nunca mais mencionou, mas eu ainda espero.',        score:1 },
+      { letter:'B', text:'Raramente, apenas em momentos de crise.',           score:1 },
+      { letter:'C', text:'Frequentemente, mas a data é sempre adiada.',      score:2 },
+      { letter:'D', text:'Ele não promete, mas eu sinto que vai.',            score:1 },
+    ]
+  },
+  {
+    text: 'Como você se sente em relação a datas comemorativas (Natal, Ano Novo, Dia dos Namorados)?',
+    opts: [
+      { letter:'A', text:'É um dia normal, não me afeta.',                    score:0 },
+      { letter:'B', text:'Sinto uma pontada de tristeza, mas supero.',        score:1 },
+      { letter:'C', text:'É um dia de profunda solidão e ansiedade, esperando uma mensagem secreta.', score:2 },
+      { letter:'D', text:'Tento ignorar e me ocupar para não pensar.',        score:1 },
+    ]
+  },
+  {
+    text: 'Qual o seu papel na vida social dele?',
+    opts: [
+      { letter:'A', text:'Sou apresentada a alguns amigos de confiança.',     score:0 },
+      { letter:'B', text:'Sou o segredo absoluto; ninguém sabe da minha existência.', score:2 },
+      { letter:'C', text:'Ele me inclui em planos futuros concretos.',        score:0 },
+      { letter:'D', text:'Sou a "pausa" na rotina dele, vista apenas em locais discretos.', score:2 },
+    ]
+  },
+  {
+    text: 'Você se pega constantemente comparando-se à esposa/parceira dele?',
+    opts: [
+      { letter:'A', text:'Nunca.',                                            score:0 },
+      { letter:'B', text:'Às vezes, para me sentir superior.',                score:1 },
+      { letter:'C', text:'Sim, e sinto que preciso ser a "amante perfeita" para ele me escolher.', score:2 },
+      { letter:'D', text:'Apenas quando ele a menciona.',                     score:1 },
+    ]
+  },
+  {
+    text: 'Qual a duração média do período em que ele "some" ou fica incomunicável?',
+    opts: [
+      { letter:'A', text:'Menos de 24 horas.',                                score:0 },
+      { letter:'B', text:'De 1 a 3 dias.',                                    score:1 },
+      { letter:'C', text:'Mais de 3 dias, o que me causa grande ansiedade.',  score:2 },
+      { letter:'D', text:'Ele está sempre disponível.',                       score:0 },
+    ]
+  },
+  // ── PROBLEMA ──
+  {
+    text: 'Você sente que sua autoestima está sendo minada por ser a "segunda opção"?',
+    opts: [
+      { letter:'A', text:'Não, eu sei o meu valor.',                          score:0 },
+      { letter:'B', text:'Às vezes, mas consigo me reerguer.',                score:1 },
+      { letter:'C', text:'Sim, sinto que sou boa o suficiente apenas para o secreto, não para a vida real.', score:2 },
+      { letter:'D', text:'Não sei, estou confusa sobre meu valor.',           score:1 },
+    ]
+  },
+  {
+    text: 'Você já se sentiu culpada ou envergonhada por ter que mentir para amigos e familiares?',
+    opts: [
+      { letter:'A', text:'Nunca, é um assunto meu.',                          score:0 },
+      { letter:'B', text:'Sim, a culpa social é um peso constante.',          score:2 },
+      { letter:'C', text:'Apenas quando sou questionada diretamente.',        score:1 },
+      { letter:'D', text:'Não, eu evito o assunto.',                          score:1 },
+    ]
+  },
+  {
+    text: 'Você percebe que está viciada no ciclo de reforço intermitente (ansiedade da espera seguida pela euforia da recompensa)?',
+    opts: [
+      { letter:'A', text:'Não, eu sou emocionalmente estável.',               score:0 },
+      { letter:'B', text:'Sim, a montanha-russa emocional é exaustiva.',      score:2 },
+      { letter:'C', text:'Não sei o que é isso.',                             score:1 },
+      { letter:'D', text:'Apenas sinto falta dele quando ele não está.',      score:1 },
+    ]
+  },
+  {
+    text: 'Qual o nível de ansiedade que você sente ao esperar uma mensagem ou ligação dele?',
+    opts: [
+      { letter:'A', text:'Baixo, consigo focar em outras coisas.',            score:0 },
+      { letter:'B', text:'Médio, checo o celular a cada hora.',               score:1 },
+      { letter:'C', text:'Alto, meu sistema nervoso está em estado de alerta constante.', score:2 },
+      { letter:'D', text:'Apenas uma leve expectativa.',                      score:0 },
+    ]
+  },
+  {
+    text: 'Você já se pegou justificando a falta de ação dele (dizendo que ele está com medo, que é por causa dos filhos, etc.)?',
+    opts: [
+      { letter:'A', text:'Não, eu sou realista.',                             score:0 },
+      { letter:'B', text:'Sim, eu sou a "salvadora" que o entende.',          score:2 },
+      { letter:'C', text:'Apenas no início do relacionamento.',               score:1 },
+      { letter:'D', text:'Sim, e isso me faz sentir que sou a única que o apoia.', score:2 },
+    ]
+  },
+  // ── IMPLICAÇÃO ──
+  {
+    text: 'Se você continuar nesse ciclo por mais 5 anos, como imagina sua saúde mental e emocional?',
+    opts: [
+      { letter:'A', text:'Estável, o tempo resolve tudo.',                    score:0 },
+      { letter:'B', text:'Provavelmente mais desgastada e amargurada.',       score:1 },
+      { letter:'C', text:'Destruída, com a autoestima no chão e sem perspectiva de um futuro exclusivo.', score:2 },
+      { letter:'D', text:'Não consigo imaginar, prefiro não pensar.',         score:1 },
+    ]
+  },
+  {
+    text: 'O quanto sua vida profissional ou seus hobbies foram prejudicados pela energia gasta esperando por ele?',
+    opts: [
+      { letter:'A', text:'Nada, consigo separar as coisas.',                  score:0 },
+      { letter:'B', text:'Um pouco, mas é administrável.',                    score:1 },
+      { letter:'C', text:'Significativamente. A espera e a ansiedade consomem toda a minha energia.', score:2 },
+      { letter:'D', text:'Não tenho certeza.',                                score:1 },
+    ]
+  },
+  {
+    text: 'Você acredita que a inércia dele é, na verdade, a decisão dele de não te escolher para a vida real?',
+    opts: [
+      { letter:'A', text:'Não, ele realmente me ama.',                        score:0 },
+      { letter:'B', text:'Sim, e essa verdade é dolorosa demais para aceitar.', score:2 },
+      { letter:'C', text:'Não sei, ele me confunde.',                         score:1 },
+      { letter:'D', text:'Sim, mas eu ainda tenho esperança.',                score:1 },
+    ]
+  },
+  {
+    text: 'O que você está perdendo ao dedicar seu tempo e afeto a um homem indisponível?',
+    opts: [
+      { letter:'A', text:'Nada, estou feliz.',                                score:0 },
+      { letter:'B', text:'A chance de construir um relacionamento transparente e maduro.', score:1 },
+      { letter:'C', text:'Minha juventude, minha paz e a oportunidade de atrair um parceiro que me priorize.', score:2 },
+      { letter:'D', text:'Apenas um pouco de tempo.',                         score:0 },
+    ]
+  },
+  {
+    text: 'Você tem medo de que, ao sair desse relacionamento, você não consiga mais atrair um amor exclusivo?',
+    opts: [
+      { letter:'A', text:'Não, eu sou confiante.',                            score:0 },
+      { letter:'B', text:'Sim, esse medo me paralisa e me faz aceitar as migalhas.', score:2 },
+      { letter:'C', text:'Tenho medo de ficar sozinha.',                      score:1 },
+      { letter:'D', text:'Não pensei nisso.',                                 score:0 },
+    ]
+  },
+  // ── NECESSIDADE ──
+  {
+    text: 'Você está pronta para transformar a consciência da sua dor em uma ação de libertação?',
+    opts: [
+      { letter:'A', text:'Não, ainda preciso de mais tempo.',                 score:0 },
+      { letter:'B', text:'Sim, mas não sei por onde começar.',                score:1 },
+      { letter:'C', text:'Sim, estou exausta de ser o segredo e quero minha dignidade de volta.', score:2 },
+      { letter:'D', text:'Talvez.',                                           score:1 },
+    ]
+  },
+  {
+    text: 'Você reconhece que precisa de um passo a passo para o rompimento limpo, incluindo o Contato Zero?',
+    opts: [
+      { letter:'A', text:'Não, eu consigo fazer isso sozinha.',               score:0 },
+      { letter:'B', text:'Sim, preciso de um guia para não recair.',          score:2 },
+      { letter:'C', text:'Sim, e preciso de ajuda para lidar com a crise de abstinência emocional.', score:2 },
+      { letter:'D', text:'Não sei se é necessário.',                          score:1 },
+    ]
+  },
+  {
+    text: 'O quanto você valoriza um guia que te ensine a reconstruir sua autoestima e atrair um parceiro disponível?',
+    opts: [
+      { letter:'A', text:'Não é minha prioridade.',                           score:0 },
+      { letter:'B', text:'É importante, mas não urgente.',                    score:1 },
+      { letter:'C', text:'É a minha maior prioridade. Preciso de um foco em mim mesma.', score:2 },
+      { letter:'D', text:'É um bônus interessante.',                          score:1 },
+    ]
+  },
+  {
+    text: 'Você acredita que a única forma de quebrar o ciclo de dependência emocional é através de um Protocolo de Saída estruturado?',
+    opts: [
+      { letter:'A', text:'Não, a força de vontade é suficiente.',             score:0 },
+      { letter:'B', text:'Sim, a dependência é um vício que precisa de um método.', score:2 },
+      { letter:'C', text:'Não sei, nunca tentei.',                            score:1 },
+      { letter:'D', text:'Sim, mas acho que é muito caro.',                   score:1 },
+    ]
+  },
+  {
+    text: 'Se existisse um guia prático que te levasse da negação à plenitude, ensinando a escolher a si mesma, você o adquiriria agora?',
+    opts: [
+      { letter:'A', text:'Não.',                                              score:0 },
+      { letter:'B', text:'Talvez, se fosse muito barato.',                    score:1 },
+      { letter:'C', text:'Sim, o custo de continuar como estou é muito maior do que o custo de um guia.', score:2 },
+      { letter:'D', text:'Sim, mas só se tiver garantia.',                    score:1 },
+    ]
+  },
+];
+
+// ── PROFILES ─────────────────────────────────────────
+const profiles = {
+  high: {
+    tag: '🔴 Ponto de Virada',
+    h1: 'Você já sabe a resposta.<br><em>Só ainda não agiu.</em>',
+    sub: 'Seu diagnóstico é claro: a dor está no nível máximo, a autoestima está em risco — e você reconhece a situação com uma lucidez que dói.',
+    diagTitle: 'Você está vivendo <em>o Ponto de Virada</em>',
+    diagP: ['Suas respostas mostram um padrão consistente: você está num ciclo de reforço intermitente — espera, euforia, abandono, espera de novo. E o seu sistema nervoso já está exausto de carregar isso.','Você reconhece que a inércia dele não é indecisão. É a decisão dele, feita todos os dias, de não te escolher para a vida real.'],
+    pains: ['Sua autoestima está sendo corroída por dentro, sem que ninguém perceba por fora','Você está cansada de apagar mensagens, de inventar desculpas, de passar datas sozinha esperando','O medo de recair é real — porque você já tentou sair antes e voltou','Você sabe que precisa de um método, não só de força de vontade','A pergunta não é mais "será que devo sair?" — é "como eu saio sem me destruir no processo?"'],
+    bridgeTitle: 'Você não precisa de mais <em>tempo.</em><br>Você precisa de um mapa.',
+    bridgeP: ['Força de vontade sozinha não quebra dependência emocional. O cérebro viciado em reforço intermitente precisa de um protocolo — uma estrutura que sustente a decisão quando a saudade bater às 2h da manhã.','O Protocolo de Saída foi desenvolvido exatamente para esse momento: quando você já sabe que precisa sair, mas ainda não tem o caminho estruturado para não recair.'],
+    cta: 'SIM — EU ESCOLHO A MIM MESMA AGORA',
+    footerTitle: 'Chega de esperar por uma decisão<br><em>que nunca vai chegar.</em>',
+    footerSub: 'Você já esperou demais. O custo de continuar é muito maior do que o custo de sair. Comece agora.',
+    scorePercent: 85,
+    scoreMin: 'Negação', scoreMax: 'Ponto de Virada',
+  },
+  medium: {
+    tag: '🟡 Conscientização',
+    h1: 'Você está acordando.<br><em>Isso já é coragem.</em>',
+    sub: 'Você sente a dor, reconhece o padrão — mas ainda hesita em aceitar as implicações reais. Esse é o passo mais difícil de todos.',
+    diagTitle: 'Você está na fase da <em>Conscientização</em>',
+    diagP: ['Suas respostas mostram que você já tem clareza suficiente para sentir a dor — mas ainda está num lugar de "talvez", "quase", "mais um tempo". A esperança ainda fala mais alto do que a evidência.','É exatamente aqui que a maioria das mulheres fica presa por anos: sabendo que precisa sair, mas sem a clareza e as ferramentas para transformar essa consciência em ação.'],
+    pains: ['Você oscila entre "ele vai mudar" e "eu sei que ele não vai mudar"','A dor já está presente, mas você ainda consegue anestesiá-la com os momentos bons','Você tem medo do que vai sentir se realmente aceitar que não vai dar certo','Uma parte de você já sabe o que precisa fazer — outra parte ainda espera um milagre','Você precisa de clareza, não de mais tempo para pensar'],
+    bridgeTitle: 'Consciência sem ação<br><em>não muda nada.</em>',
+    bridgeP: ['Você já tem a peça mais difícil: a percepção de que algo está errado. O que falta agora são as ferramentas para transformar essa percepção em uma decisão real.','O Protocolo de Saída foi criado para esse exato momento da sua jornada: quando você está no limiar entre a ilusão e a liberdade.'],
+    cta: 'QUERO A CLAREZA QUE ME FALTA',
+    footerTitle: 'Você já sente.<br><em>Agora é hora de agir.</em>',
+    footerSub: 'A espera é o que permite que ele mantenha o status quo. Cada dia de hesitação é um dia a mais de custo emocional.',
+    scorePercent: 52,
+    scoreMin: 'Negação', scoreMax: 'Ponto de Virada',
+  },
+  low: {
+    tag: '🟢 Fase de Negação',
+    h1: 'Você respondeu com<br><em>muita certeza.</em>',
+    sub: 'Suas respostas indicam que você ainda não sente a situação como um problema — ou que respondeu com a versão que gostaria que fosse verdade.',
+    diagTitle: 'Você está na fase da <em>Negação</em>',
+    diagP: ['Isso não é julgamento — é reconhecimento. A negação é o primeiro mecanismo de defesa do nosso cérebro diante de uma realidade dolorosa demais para encarar de frente.','Se você respondeu com total sinceridade e realmente não se identifica — este guia pode não ser para você agora. Mas se houve uma hesitação, uma resposta que você quase mudou... vale a pena continuar lendo.'],
+    pains: ['Você sente uma leveza estranha quando ele "some" por alguns dias — como um alívio que não entende','Há momentos em que se pergunta o que seria da sua vida se ele fosse totalmente disponível','Algumas datas comemorativas têm um peso que você prefere não examinar de perto','A ideia de um relacionamento "normal" às vezes parece entediante — e isso te preocupa','Você guarda este link. Em algum momento, você vai precisar voltar aqui.'],
+    bridgeTitle: 'Quando a dor falar mais alto,<br><em>este guia estará aqui.</em>',
+    bridgeP: ['Ninguém escolhe encarar uma realidade dolorosa antes de estar pronta. Se você chegou até aqui e fez o quiz, algo dentro de você estava buscando uma resposta.','O Protocolo de Saída não é só sobre terminar relacionamentos. É um mapa para qualquer mulher que quer entender seus próprios padrões emocionais.'],
+    cta: 'QUERO ENTENDER MEUS PADRÕES EMOCIONAIS',
+    footerTitle: 'Se houver uma dúvida,<br><em>confie nela.</em>',
+    footerSub: 'Quando a dor da espera for maior que o medo de encarar a verdade, o Protocolo estará aqui esperando por você.',
+    scorePercent: 22,
+    scoreMin: 'Negação', scoreMax: 'Ponto de Virada',
+  }
+};
+
+// ── STATE ─────────────────────────────────────────────
+let current = 0;
+let answers = new Array(questions.length).fill(null);
+let userName = '';
+
+// ── INIT QUIZ ─────────────────────────────────────────
+function startQuiz() {
+  showScreen('screen-quiz');
+  renderQuestions();
+  updateQuizUI();
+}
+
+function renderQuestions() {
+  const wrap = document.getElementById('question-wrap');
+  wrap.innerHTML = questions.map((q, i) => `
+    <div class="question-card ${i === 0 ? 'active' : ''}" id="qcard-${i}">
+      <div class="q-number">${String(i+1).padStart(2,'0')}</div>
+      <p class="q-text">${q.text}</p>
+      <ul class="options-list">
+        ${q.opts.map((o, j) => `
+          <li class="option-item">
+            <button class="option-btn" data-letter="${o.letter}" data-q="${i}" data-j="${j}"
+              onclick="selectOption(${i}, ${j})">${o.text}</button>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `).join('');
+}
+
+function selectOption(qIdx, optIdx) {
+  answers[qIdx] = optIdx;
+  // update UI
+  document.querySelectorAll(`[data-q="${qIdx}"]`).forEach(b => b.classList.remove('selected'));
+  document.querySelector(`[data-q="${qIdx}"][data-j="${optIdx}"]`).classList.add('selected');
+  document.getElementById('btn-next').disabled = false;
+
+  // auto-advance after short delay
+  setTimeout(() => {
+    if (current < questions.length - 1) nextQuestion();
+    else goToEmail();
+  }, 420);
+}
+
+function nextQuestion() {
+  if (answers[current] === null) return;
+  if (current < questions.length - 1) {
+    document.getElementById(`qcard-${current}`).classList.remove('active');
+    current++;
+    document.getElementById(`qcard-${current}`).classList.add('active');
+    updateQuizUI();
+  } else {
+    goToEmail();
+  }
+}
+
+function prevQuestion() {
+  if (current > 0) {
+    document.getElementById(`qcard-${current}`).classList.remove('active');
+    current--;
+    document.getElementById(`qcard-${current}`).classList.add('active');
+    updateQuizUI();
+  }
+}
+
+function updateQuizUI() {
+  // counter
+  document.getElementById('quiz-counter').textContent = `Pergunta ${current+1} de ${questions.length}`;
+  // progress
+  document.getElementById('progress-fill').style.width = `${((current+1)/questions.length)*100}%`;
+  // prev button
+  document.getElementById('btn-prev').disabled = current === 0;
+  // next button
+  document.getElementById('btn-next').disabled = answers[current] === null;
+  // next label
+  document.getElementById('btn-next').textContent = current === questions.length - 1 ? 'Ver Resultado →' : 'Próxima →';
+  // section label
+  const sec = sections.find(s => current >= s.range[0] && current <= s.range[1]);
+  if (sec) {
+    document.getElementById('section-tag').textContent = sec.tag;
+    document.getElementById('section-name').textContent = sec.name;
+  }
+  // restore selected state visually
+  if (answers[current] !== null) {
+    const btn = document.querySelector(`[data-q="${current}"][data-j="${answers[current]}"]`);
+    if (btn) btn.classList.add('selected');
+  }
+}
+
+// ── EMAIL ─────────────────────────────────────────────
+function goToEmail() {
+  showScreen('screen-email');
+}
+
+function submitEmail() {
+  const name  = document.getElementById('user-name').value.trim();
+  const email = document.getElementById('user-email').value.trim();
+  if (!name)  { alert('Por favor, insira seu nome.'); return; }
+  if (!email || !email.includes('@')) { alert('Por favor, insira um e-mail válido.'); return; }
+  userName = name;
+  // Here you'd POST to your CRM/ESP — e.g. ActiveCampaign, Mailchimp, etc.
+  // fetch('https://seu-webhook.com/lead', { method:'POST', body: JSON.stringify({name, email, profile: calcProfile()}) })
+  showScreen('screen-loading');
+  runLoading();
+}
+
+// ── LOADING ───────────────────────────────────────────
+function runLoading() {
+  const steps = document.querySelectorAll('.loading-step');
+  let i = 0;
+  const tick = setInterval(() => {
+    if (i < steps.length) {
+      steps[i].classList.add('done');
+      i++;
+    } else {
+      clearInterval(tick);
+      setTimeout(showResult, 600);
+    }
+  }, 500);
+}
+
+// ── SCORING ───────────────────────────────────────────
+function calcProfile() {
+  const total = answers.reduce((sum, ans, i) => {
+    if (ans === null) return sum;
+    return sum + questions[i].opts[ans].score;
+  }, 0);
+  const max = questions.length * 2; // max score if all C
+  const pct = total / max;
+  if (pct >= 0.55) return 'high';
+  if (pct >= 0.28) return 'medium';
+  return 'low';
+}
+
+// ── RESULT ────────────────────────────────────────────
+function showResult() {
+  const profile = profiles[calcProfile()];
+  const firstName = userName ? `, ${userName}` : '';
+
+  document.getElementById('screen-result').innerHTML = `
+    <div class="result-hero">
+      <div class="result-hero-inner">
+        <div class="result-profile-tag">${profile.tag}</div>
+        <h1>${profile.h1}</h1>
+        <p class="result-hero-sub">${profile.sub}</p>
+      </div>
+    </div>
+
+    <div class="score-visual">
+      <div class="score-visual-inner">
+        <p class="score-title">Seu nível de identificação com o ciclo</p>
+        <div class="score-bar-track"><div class="score-bar-fill" id="score-bar-fill"></div></div>
+        <div class="score-range-labels"><span>${profile.scoreMin}</span><span>${profile.scoreMax}</span></div>
+      </div>
+    </div>
+
+    <div class="result-diagnostic">
+      <div class="result-diagnostic-inner">
+        <p class="result-diag-eyebrow">O que o seu quiz revelou${firstName}</p>
+        <h2>${profile.diagTitle}</h2>
+        ${profile.diagP.map(p => `<p>${p}</p>`).join('')}
+        <div class="result-divider"></div>
+        <p class="result-diag-eyebrow">O que está acontecendo com você agora</p>
+        <ul class="pain-list">
+          ${profile.pains.map(p => `<li>${p}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+
+    <div class="result-bridge">
+      <div class="result-bridge-inner">
+        <p class="result-bridge-eyebrow">A ponte entre o diagnóstico e a liberdade</p>
+        <h2>${profile.bridgeTitle}</h2>
+        ${profile.bridgeP.map(p => `<p>${p}</p>`).join('')}
+      </div>
+    </div>
+
+    <div class="result-product">
+      <div class="product-card">
+        <div class="product-head">
+          <p class="kicker">Sua solução completa</p>
+          <h3>Escolha Si Mesma</h3>
+          <p class="subtitle">Protocolo de Saída — Edição Completa</p>
+        </div>
+        <div class="product-body">
+          <p class="chapters-label">O que você vai receber</p>
+          <ul class="chapter-list">
+            ${[['01','Por Que Ele Nunca Vai Sair — e por que entender isso liberta'],
+               ['02','O Preço da Invisibilidade — o custo real de ser "a outra"'],
+               ['03','O Jogo da Espera — como a dependência emocional se instala'],
+               ['04','O Espelho da Verdade — resgatar quem você era'],
+               ['05','A Arte de Dizer Basta — o Protocolo de Saída passo a passo'],
+               ['06','A Crise de Abstinência — sobrevivendo à recaída'],
+               ['07','A Cura da Autoestima — ser sua própria prioridade'],
+               ['08','Atraindo o Amor Exclusivo — o novo padrão'],
+               ['09','Plenitude Solteira — a vida que você constrói'],
+            ].map(([n,t]) => `<li><span class="ch-n">${n}</span>${t}</li>`).join('')}
+          </ul>
+          <div class="bonus-box">
+            <p class="bonus-label">✦ Bônus exclusivos inclusos</p>
+            <div class="bonus-row"><span class="bonus-dot">◆</span><span><strong>Bônus 1 — Checklist das 72 Horas:</strong> o mapa de guerra para as primeiras horas pós-rompimento com Contato Zero estruturado</span></div>
+            <div class="bonus-row"><span class="bonus-dot">◆</span><span><strong>Bônus 2 — Calculadora do Custo Emocional:</strong> transforme sua dor em dados concretos e veja o preço real da ilusão</span></div>
+            <div class="bonus-row"><span class="bonus-dot">◆</span><span><strong>Bônus 3 — Diário das 30 Viradas:</strong> 30 prompts para processar emoções e construir sua nova identidade</span></div>
+          </div>
+          <div class="pricing">
+            <p class="price-old">De R$ 97,00</p>
+            <p class="price-now">R$ XX</p>
+            <p class="price-note">Acesso imediato · Pagamento único · Garantia de 7 dias</p>
+          </div>
+          <button class="btn-cta" onclick="window.location='#checkout'">${profile.cta}</button>
+          <p class="cta-guarantee">🔒 Compra 100% segura · Garantia incondicional de 7 dias</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-footer">
+      <h2>${profile.footerTitle}</h2>
+      <p>${profile.footerSub}</p>
+      <button class="btn-cta" onclick="window.location='#checkout'">${profile.cta}</button>
+      <p class="cta-guarantee">Garantia de 7 dias · Sem perguntas</p>
+    </div>
+  `;
+
+  showScreen('screen-result');
+
+  // animate score bar
+  setTimeout(() => {
+    const bar = document.getElementById('score-bar-fill');
+    if (bar) bar.style.width = profile.scorePercent + '%';
+  }, 400);
+}
+
+// ── UTILS ─────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
